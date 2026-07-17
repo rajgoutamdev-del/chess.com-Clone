@@ -1,6 +1,7 @@
 import { Chess } from "chess.js";
 import { WebSocket } from "ws";
 import { GAME_OVER, INIT_GAME, MOVE } from "./messages.js";
+import { moveMessagePortToContext } from "node:worker_threads";
 
 
 export class Game {
@@ -9,6 +10,7 @@ export class Game {
     public player2: WebSocket;
     public board : Chess;
     private startTime : Date;
+    private countMoves = 0;
 
     constructor(player1: WebSocket, player2: WebSocket) {
         this.player1 = player1;
@@ -39,12 +41,18 @@ export class Game {
         // Is it this user move
         // Is the move valid
 
+        // console.log("trying to make move");
         try {
             this.board.move(move);
+            
         }
         catch(e) {
             return 
         }
+
+        // console.log("move made");
+
+
 
         if(this.board.isGameOver()) {
 
@@ -56,17 +64,19 @@ export class Game {
             }))
         }
 
-        if(this.board.moves.length % 2 === 0) {
-            this.player2.emit(JSON.stringify({
+
+        if(this.countMoves % 2 === 0) {
+            this.player2.send(JSON.stringify({
                 type: MOVE,
                 payload : move
             }))
         } else {
-            this.player1.emit(JSON.stringify({
+            this.player1.send(JSON.stringify({
                 type: MOVE,
                 payload: move
             }))
         }
+        this.countMoves++;
 
         // send the updated board to both the user
     }

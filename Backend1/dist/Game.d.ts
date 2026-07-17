@@ -5,6 +5,7 @@ export declare class Game {
     player2: WebSocket;
     board: Chess;
     private startTime;
+    private countMoves;
     constructor(player1: WebSocket, player2: WebSocket);
     makeMove(socket: WebSocket, move: {
         from: string;

@@ -12,9 +12,7 @@ export class GameManager {
     }
     addUser(socket) {
         this.users.push(socket);
-        console.log("new user added");
         this.addHandler(socket);
-        console.log("player added by handler");
     }
     removeUser(socket) {
         this.users = this.users.filter(user => user != socket);
@@ -36,8 +34,10 @@ export class GameManager {
                 }
             }
             if (message.type === MOVE) {
+                // console.log("In make move, type matched");
                 const game = this.games.find(game => game.player1 === socket || game.player2 === socket);
                 if (game) {
+                    // console.log("Going to make move");
                     game.makeMove(socket, message.move);
                 }
             }
