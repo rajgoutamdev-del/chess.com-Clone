@@ -1,7 +1,6 @@
 import { Chess } from "chess.js";
 import { WebSocket } from "ws";
 import { GAME_OVER, INIT_GAME, MOVE } from "./messages.js";
-import { moveMessagePortToContext } from "node:worker_threads";
 
 
 export class Game {
@@ -10,7 +9,6 @@ export class Game {
     public player2: WebSocket;
     public board : Chess;
     private startTime : Date;
-    private countMoves = 0;
 
     constructor(player1: WebSocket, player2: WebSocket) {
         this.player1 = player1;
@@ -36,50 +34,43 @@ export class Game {
     makeMove(socket:WebSocket, move: {
         from: string;
         to: string;
+        promotion?: string;
     }) {
-        // Validations
-        // Is it this user move
-        // Is the move valid
+        // Only the player whose turn it is may move
+        const isWhitesTurn = this.board.turn() === "w";
+        if ((isWhitesTurn && socket !== this.player1) || (!isWhitesTurn && socket !== this.player2)) {
+            return;
+        }
 
-        // console.log("trying to make move");
         try {
             this.board.move(move);
-            
         }
         catch(e) {
-            return 
+            return
         }
 
-        // console.log("move made");
-
-
+        this.player1.send(JSON.stringify({
+            type: MOVE,
+            payload : move
+        }))
+        this.player2.send(JSON.stringify({
+            type: MOVE,
+            payload : move
+        }))
 
         if(this.board.isGameOver()) {
-
-            this.player1.emit(JSON.stringify({      // using stringfy because we can only pass strings through websockets
-                type: GAME_OVER,
-                payload : {
-                    winner: this.board.turn() === "w" ? "black" : "white"
-                }
-            }))
-        }
-
-
-        if(this.countMoves % 2 === 0) {
-            this.player2.send(JSON.stringify({
-                type: MOVE,
-                payload : move
-            }))
-        } else {
+            const payload = {
+                winner: this.board.turn() === "w" ? "black" : "white"
+            };
             this.player1.send(JSON.stringify({
-                type: MOVE,
-                payload: move
+                type: GAME_OVER,
+                payload
+            }))
+            this.player2.send(JSON.stringify({
+                type: GAME_OVER,
+                payload
             }))
         }
-        this.countMoves++;
-
-        // send the updated board to both the user
     }
 
 }
-

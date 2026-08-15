@@ -1,26 +1,23 @@
-import { useState } from 'react'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from './assets/vite.svg'
-// import heroImg from './assets/hero.png'
-import './App.css'
-import {BrowserRouter, Route, Routes} from "react-router-dom";
-import { Landing } from './screens/Landing';
-import { Game } from './screens/Game';
+import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
+import { Landing } from "./screens/Landing";
+import { Game } from "./screens/Game";
 
 function App() {
-  // const [count, setCount] = useState(0)
-
   return (
-    <>
-      <BrowserRouter>
+    <BrowserRouter>
+      <div className="min-h-screen bg-neutral-900">
+        <nav className="border-b border-neutral-800 px-4 py-3">
+          <Link to="/" className="text-lg font-bold text-neutral-100">
+            Chess<span className="text-green-500">.com</span> Clone
+          </Link>
+        </nav>
         <Routes>
-          <Route path="/" element={< Landing/>}/>
-          <Route path="/game" element={< Game/>}/>
+          <Route path="/" element={<Landing />} />
+          <Route path="/game" element={<Game />} />
         </Routes>
-      </BrowserRouter>
-
-    </>
-  )
+      </div>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
